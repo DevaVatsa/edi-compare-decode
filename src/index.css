@@ -2,41 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* EDI Comparison Tool Design System - Professional Developer Theme */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Professional dark theme for developer tools */
+    --background: 220 13% 9%;
+    --foreground: 220 14% 93%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 13% 11%;
+    --card-foreground: 220 14% 93%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 13% 11%;
+    --popover-foreground: 220 14% 93%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 220 13% 9%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 13% 15%;
+    --secondary-foreground: 220 14% 93%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 55%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 220 13% 9%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 220 14% 93%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 13% 18%;
+    --input: 220 13% 15%;
+    --ring: 217 91% 60%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
+
+    /* EDI Syntax Highlighting Colors */
+    --edi-segment: 142 71% 45%;
+    --edi-element: 47 96% 53%;
+    --edi-separator: 220 9% 55%;
+    --edi-qualifier: 271 91% 65%;
+    --edi-number: 31 81% 56%;
+    --edi-date: 199 89% 48%;
+    
+    /* Editor specific colors */
+    --editor-bg: 220 13% 7%;
+    --editor-line-number: 220 9% 35%;
+    --editor-selection: 217 91% 60% / 0.1;
+    --editor-current-line: 220 13% 12%;
+    
+    /* Comparison colors */
+    --diff-added: 142 71% 45% / 0.15;
+    --diff-removed: 0 84% 60% / 0.15;
+    --diff-modified: 47 96% 53% / 0.15;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +118,85 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-mono;
+  }
+  
+  /* Custom scrollbars for editor */
+  .editor-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .editor-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--editor-bg));
+  }
+  
+  .editor-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: 4px;
+  }
+  
+  .editor-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent));
+  }
+}
+
+@layer components {
+  /* EDI Editor Styles */
+  .edi-editor {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
+    background: hsl(var(--editor-bg));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+  }
+  
+  .edi-line {
+    padding: 2px 12px;
+    border-bottom: 1px solid hsl(var(--border) / 0.1);
+  }
+  
+  .edi-line:hover {
+    background: hsl(var(--editor-current-line));
+  }
+  
+  .edi-segment {
+    color: hsl(var(--edi-segment));
+    font-weight: 600;
+  }
+  
+  .edi-element {
+    color: hsl(var(--edi-element));
+  }
+  
+  .edi-separator {
+    color: hsl(var(--edi-separator));
+  }
+  
+  .edi-qualifier {
+    color: hsl(var(--edi-qualifier));
+  }
+  
+  .edi-number {
+    color: hsl(var(--edi-number));
+  }
+  
+  .edi-date {
+    color: hsl(var(--edi-date));
+  }
+  
+  /* File comparison diff styles */
+  .diff-added {
+    background: hsl(var(--diff-added));
+    border-left: 3px solid hsl(var(--edi-segment));
+  }
+  
+  .diff-removed {
+    background: hsl(var(--diff-removed));
+    border-left: 3px solid hsl(var(--destructive));
+  }
+  
+  .diff-modified {
+    background: hsl(var(--diff-modified));
+    border-left: 3px solid hsl(var(--edi-element));
   }
 }
