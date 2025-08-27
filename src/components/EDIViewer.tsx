@@ -2,10 +2,12 @@ import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ZoomIn, ZoomOut, Search } from "lucide-react";
+import { ZoomIn, ZoomOut, Search, AlertTriangle, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { EDIFile } from "@/pages/Index";
 import { parseEDIContent, EDISegment } from "@/utils/ediParser";
+import { validateEDITransaction, EDIError } from "@/utils/ediValidator";
+import { ErrorSummary } from "./ErrorSummary";
 
 interface EDIViewerProps {
   file: EDIFile;
@@ -14,8 +16,20 @@ interface EDIViewerProps {
 export const EDIViewer = ({ file }: EDIViewerProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [fontSize, setFontSize] = useState(14);
+  const [showValidation, setShowValidation] = useState(true);
   
   const ediData = parseEDIContent(file.content);
+  const validationResult = validateEDITransaction(ediData);
+  
+  // Create a map of line numbers to errors for quick lookup
+  const errorsByLine = new Map<number, EDIError[]>();
+  [...validationResult.errors, ...validationResult.warnings].forEach(error => {
+    const lineNumber = error.segment.lineNumber;
+    if (!errorsByLine.has(lineNumber)) {
+      errorsByLine.set(lineNumber, []);
+    }
+    errorsByLine.get(lineNumber)!.push(error);
+  });
   
   const filteredSegments = ediData.segments.filter(segment => 
     searchTerm === "" || 
@@ -49,8 +63,25 @@ export const EDIViewer = ({ file }: EDIViewerProps) => {
     return 'edi-element';
   };
 
+  const getLineClassName = (segment: EDISegment): string => {
+    const errors = errorsByLine.get(segment.lineNumber) || [];
+    if (errors.some(e => e.type === 'critical')) {
+      return 'border-l-2 border-l-destructive bg-destructive/5';
+    }
+    if (errors.some(e => e.type === 'warning')) {
+      return 'border-l-2 border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20';
+    }
+    return '';
+  };
+
   return (
     <div className="h-full flex flex-col">
+      {showValidation && (
+        <div className="border-b border-border">
+          <ErrorSummary validationResult={validationResult} fileName={file.name} />
+        </div>
+      )}
+      
       <div className="p-3 border-b border-border bg-card space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -60,8 +91,29 @@ export const EDIViewer = ({ file }: EDIViewerProps) => {
             <span className="text-sm text-muted-foreground">
               {filteredSegments.length} segments
             </span>
+            <div className="flex items-center gap-2">
+              {validationResult.isValid ? (
+                <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Valid
+                </Badge>
+              ) : (
+                <Badge variant="destructive" className="text-xs">
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  {validationResult.totalIssues} Issues
+                </Badge>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowValidation(!showValidation)}
+              className="text-xs"
+            >
+              {showValidation ? 'Hide' : 'Show'} Validation
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -95,17 +147,30 @@ export const EDIViewer = ({ file }: EDIViewerProps) => {
 
       <ScrollArea className="flex-1 editor-scrollbar">
         <div className="edi-editor" style={{ fontSize: `${fontSize}px` }}>
-          {filteredSegments.map((segment, index) => (
-            <div key={`${segment.lineNumber}-${index}`} className="edi-line flex">
-              <div className="w-12 text-editor-line-number text-xs pr-3 text-right flex-shrink-0 select-none">
-                {segment.lineNumber}
+          {filteredSegments.map((segment, index) => {
+            const lineErrors = errorsByLine.get(segment.lineNumber) || [];
+            return (
+              <div key={`${segment.lineNumber}-${index}`} className={`edi-line flex ${getLineClassName(segment)}`}>
+                <div className="w-12 text-editor-line-number text-xs pr-3 text-right flex-shrink-0 select-none flex items-center justify-end">
+                  <span>{segment.lineNumber}</span>
+                  {lineErrors.length > 0 && (
+                    <div className="ml-1">
+                      {lineErrors.some(e => e.type === 'critical') ? (
+                        <AlertTriangle className="h-3 w-3 text-destructive" />
+                      ) : (
+                        <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div 
+                  className="flex-1 min-w-0"
+                  dangerouslySetInnerHTML={{ __html: highlightSegmentHTML(segment) }}
+                  title={lineErrors.length > 0 ? lineErrors.map(e => e.message).join('\n') : ''}
+                />
               </div>
-              <div 
-                className="flex-1 min-w-0"
-                dangerouslySetInnerHTML={{ __html: highlightSegmentHTML(segment) }}
-              />
-            </div>
-          ))}
+            );
+          })}
           
           {filteredSegments.length === 0 && searchTerm && (
             <div className="p-8 text-center text-muted-foreground">
