@@ -29,12 +29,6 @@ export const EDIDecoder = ({ leftFile, rightFile }: EDIDecoderProps) => {
 
     const ediData = parseEDIContent(file.content);
     
-    const filteredSegments = ediData.segments.filter(segment => 
-      searchTerm === "" || 
-      segment.tag.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      decodeSegment(segment, ediData.type).toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     const decodeSegment = (segment: EDISegment, type: '834' | '820' | 'unknown'): string => {
       if (type === '834') {
         return decodeEDI834Segment(segment);
@@ -43,6 +37,12 @@ export const EDIDecoder = ({ leftFile, rightFile }: EDIDecoderProps) => {
       }
       return `${segment.tag} - ${segment.elements.slice(1).join(', ')}`;
     };
+    
+    const filteredSegments = ediData.segments.filter(segment => 
+      searchTerm === "" || 
+      segment.tag.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      decodeSegment(segment, ediData.type).toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
       <div className="flex-1 flex flex-col m-2">
