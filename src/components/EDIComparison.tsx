@@ -4,8 +4,9 @@ import { FileUploader } from "./FileUploader";
 import { EDIViewer } from "./EDIViewer";
 import { EDIDecoder } from "./EDIDecoder";
 import { ComparisonView } from "./ComparisonView";
+import { JSONConverter } from "./JSONConverter";
 import { EDIFile } from "@/pages/Index";
-import { Eye, Code, GitCompare } from "lucide-react";
+import { Eye, Code, GitCompare, FileJson } from "lucide-react";
 
 interface EDIComparisonProps {
   leftFile?: EDIFile;
@@ -22,7 +23,7 @@ export const EDIComparison = ({ leftFile, rightFile, onFileUpload }: EDIComparis
         <FileUploader onFilesUploaded={onFileUpload} compact />
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-12 mx-4 mb-4">
+          <TabsList className="grid w-full grid-cols-4 h-12 mx-4 mb-4">
             <TabsTrigger value="compare" className="flex items-center gap-2">
               <GitCompare className="h-4 w-4" />
               Compare
@@ -34,6 +35,10 @@ export const EDIComparison = ({ leftFile, rightFile, onFileUpload }: EDIComparis
             <TabsTrigger value="decode" className="flex items-center gap-2">
               <Code className="h-4 w-4" />
               Decode
+            </TabsTrigger>
+            <TabsTrigger value="convert" className="flex items-center gap-2">
+              <FileJson className="h-4 w-4" />
+              Convert
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -68,6 +73,10 @@ export const EDIComparison = ({ leftFile, rightFile, onFileUpload }: EDIComparis
           
           <TabsContent value="decode" className="h-full m-0">
             <EDIDecoder leftFile={leftFile} rightFile={rightFile} />
+          </TabsContent>
+
+          <TabsContent value="convert" className="h-full m-0">
+            <JSONConverter leftFile={leftFile} rightFile={rightFile} />
           </TabsContent>
         </Tabs>
       </div>

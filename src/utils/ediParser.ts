@@ -1,3 +1,4 @@
+// Legacy types - use universalEDIParser.ts for new implementations
 export type EDISegment = {
   tag: string;
   elements: string[];
