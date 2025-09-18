@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { EDIFile } from "@/pages/Index";
 import { parseEDIContent } from "@/utils/ediParser";
-import { validateEDIFile } from "@/utils/ediValidator";
+import { validateEDITransaction } from "@/utils/ediValidator";
 
 interface BusinessMetrics {
   totalFiles: number;
