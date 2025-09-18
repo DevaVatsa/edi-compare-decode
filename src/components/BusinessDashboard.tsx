@@ -68,7 +68,8 @@ export const BusinessDashboard = ({ files }: BusinessDashboardProps) => {
     files.forEach(file => {
       const startTime = Date.now();
       const parsed = parseEDIContent(file.content);
-      const validation = validateEDIFile(file.content);
+      const validation = validateEDITransaction(parsed);
+
       processingTime += Date.now() - startTime;
 
       // Count members and premiums
