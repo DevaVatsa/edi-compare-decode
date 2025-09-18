@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { FileUploader } from "@/components/FileUploader";
 import { EDIComparison } from "@/components/EDIComparison";
+import { BusinessDashboard } from "@/components/BusinessDashboard";
+import { FraudDetection } from "@/components/FraudDetection";
+import { MemberAnalytics } from "@/components/MemberAnalytics";
+import { JSONConverter } from "@/components/JSONConverter";
+import { ComparisonView } from "@/components/ComparisonView";
+import { ErrorSummary } from "@/components/ErrorSummary";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export interface EDIFile {
   id: string;
@@ -53,11 +60,42 @@ const Index = () => {
               <FileUploader onFilesUploaded={handleFileUpload} />
             </div>
           ) : (
-            <EDIComparison 
-              leftFile={selectedFiles.left}
-              rightFile={selectedFiles.right}
-              onFileUpload={handleFileUpload}
-            />
+            <Tabs defaultValue="compare" className="flex-1 flex flex-col">
+              <div className="border-b border-border px-6 py-2">
+                <TabsList className="grid w-full grid-cols-6">
+                  <TabsTrigger value="compare">Compare</TabsTrigger>
+                  <TabsTrigger value="convert">Convert</TabsTrigger>
+                  <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                  <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                  <TabsTrigger value="fraud">Fraud Detection</TabsTrigger>
+                  <TabsTrigger value="errors">Error Analysis</TabsTrigger>
+                </TabsList>
+              </div>
+              
+              <TabsContent value="compare" className="flex-1 m-0">
+                <ComparisonView files={files} />
+              </TabsContent>
+              
+              <TabsContent value="convert" className="flex-1 m-0">
+                <JSONConverter leftFile={selectedFiles.left} rightFile={selectedFiles.right} />
+              </TabsContent>
+              
+              <TabsContent value="dashboard" className="flex-1 m-0">
+                <BusinessDashboard files={files} />
+              </TabsContent>
+              
+              <TabsContent value="analytics" className="flex-1 m-0">
+                <MemberAnalytics files={files} />
+              </TabsContent>
+              
+              <TabsContent value="fraud" className="flex-1 m-0">
+                <FraudDetection files={files} />
+              </TabsContent>
+              
+              <TabsContent value="errors" className="flex-1 m-0">
+                <ErrorSummary files={files} />
+              </TabsContent>
+            </Tabs>
           )}
         </main>
       </div>
