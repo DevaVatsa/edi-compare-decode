@@ -78,7 +78,7 @@ export const EDIViewer = ({ file }: EDIViewerProps) => {
     <div className="h-full flex flex-col">
       {showValidation && (
         <div className="border-b border-border">
-          <ErrorSummary validationResult={validationResult} fileName={file.name} />
+          <ErrorSummary files={[file]} />
         </div>
       )}
       

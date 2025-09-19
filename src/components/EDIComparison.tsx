@@ -47,7 +47,7 @@ export const EDIComparison = ({ leftFile, rightFile, onFileUpload }: EDIComparis
       <div className="flex-1 overflow-hidden">
         <Tabs value={activeTab} className="h-full">
           <TabsContent value="compare" className="h-full m-0">
-            <ComparisonView leftFile={leftFile} rightFile={rightFile} />
+            <ComparisonView files={[leftFile, rightFile].filter(Boolean) as import("@/pages/Index").EDIFile[]} />
           </TabsContent>
           
           <TabsContent value="view" className="h-full m-0">

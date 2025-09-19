@@ -15,6 +15,8 @@ import { validateEDITransaction } from "@/utils/ediValidator";
 
 interface ComparisonViewProps {
   files: EDIFile[];
+  leftFile?: EDIFile;
+  rightFile?: EDIFile;
 }
 
 interface ComparisonResult {
@@ -46,7 +48,7 @@ interface ComparisonResult {
   recommendations: string[];
 }
 
-export const ComparisonView = ({ files }: ComparisonViewProps) => {
+export const ComparisonView = ({ files, leftFile, rightFile }: ComparisonViewProps) => {
   const [selectedFile1, setSelectedFile1] = useState<string>("");
   const [selectedFile2, setSelectedFile2] = useState<string>("");
   const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
