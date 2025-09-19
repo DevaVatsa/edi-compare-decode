@@ -7,6 +7,8 @@ import { MemberAnalytics } from "@/components/MemberAnalytics";
 import { JSONConverter } from "@/components/JSONConverter";
 import { ComparisonView } from "@/components/ComparisonView";
 import { ErrorSummary } from "@/components/ErrorSummary";
+import { PayerPerformance } from "@/components/PayerPerformance";
+import { FinancialImpact } from "@/components/FinancialImpact";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -62,12 +64,14 @@ const Index = () => {
           ) : (
             <Tabs defaultValue="compare" className="flex-1 flex flex-col">
               <div className="border-b border-border px-6 py-2">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-8">
                   <TabsTrigger value="compare">Compare</TabsTrigger>
                   <TabsTrigger value="convert">Convert</TabsTrigger>
                   <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                   <TabsTrigger value="analytics">Analytics</TabsTrigger>
                   <TabsTrigger value="fraud">Fraud Detection</TabsTrigger>
+                  <TabsTrigger value="payer">Payer Performance</TabsTrigger>
+                  <TabsTrigger value="financial">Financial Impact</TabsTrigger>
                   <TabsTrigger value="errors">Error Analysis</TabsTrigger>
                 </TabsList>
               </div>
@@ -90,6 +94,14 @@ const Index = () => {
               
               <TabsContent value="fraud" className="flex-1 m-0">
                 <FraudDetection files={files} />
+              </TabsContent>
+              
+              <TabsContent value="payer" className="flex-1 m-0">
+                <PayerPerformance files={files} />
+              </TabsContent>
+              
+              <TabsContent value="financial" className="flex-1 m-0">
+                <FinancialImpact files={files} />
               </TabsContent>
               
               <TabsContent value="errors" className="flex-1 m-0">
