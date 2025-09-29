@@ -12,6 +12,9 @@ import { FinancialImpact } from "@/components/FinancialImpact";
 import { WorkflowAutomation } from "@/components/WorkflowAutomation";
 import { PredictiveAnalytics } from "@/components/PredictiveAnalytics";
 import { APIIntegration } from "@/components/APIIntegration";
+import { SecurityCompliance } from "@/components/SecurityCompliance";
+import { RegulatoryReporting } from "@/components/RegulatoryReporting";
+import { PerformanceOptimization } from "@/components/PerformanceOptimization";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -67,18 +70,19 @@ const Index = () => {
           ) : (
             <Tabs defaultValue="compare" className="flex-1 flex flex-col">
               <div className="border-b border-border px-6 py-2">
-                <TabsList className="grid w-full grid-cols-11 text-xs">
-                  <TabsTrigger value="compare">Compare</TabsTrigger>
-                  <TabsTrigger value="convert">Convert</TabsTrigger>
-                  <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                  <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                  <TabsTrigger value="fraud">Fraud</TabsTrigger>
-                  <TabsTrigger value="payer">Payer</TabsTrigger>
-                  <TabsTrigger value="financial">Financial</TabsTrigger>
-                  <TabsTrigger value="workflow">Workflow</TabsTrigger>
-                  <TabsTrigger value="predictive">Predictive</TabsTrigger>
-                  <TabsTrigger value="api">API</TabsTrigger>
-                  <TabsTrigger value="errors">Errors</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-12 text-xs gap-1">
+                  <TabsTrigger value="compare" className="text-xs">Compare</TabsTrigger>
+                  <TabsTrigger value="convert" className="text-xs">Convert</TabsTrigger>
+                  <TabsTrigger value="dashboard" className="text-xs">Dashboard</TabsTrigger>
+                  <TabsTrigger value="analytics" className="text-xs">Analytics</TabsTrigger>
+                  <TabsTrigger value="fraud" className="text-xs">Fraud</TabsTrigger>
+                  <TabsTrigger value="payer" className="text-xs">Payer</TabsTrigger>
+                  <TabsTrigger value="financial" className="text-xs">Financial</TabsTrigger>
+                  <TabsTrigger value="workflow" className="text-xs">Workflow</TabsTrigger>
+                  <TabsTrigger value="predictive" className="text-xs">AI/ML</TabsTrigger>
+                  <TabsTrigger value="api" className="text-xs">API</TabsTrigger>
+                  <TabsTrigger value="security" className="text-xs">Security</TabsTrigger>
+                  <TabsTrigger value="reports" className="text-xs">Reports</TabsTrigger>
                 </TabsList>
               </div>
               
@@ -120,6 +124,18 @@ const Index = () => {
               
               <TabsContent value="api" className="flex-1 m-0">
                 <APIIntegration files={files} />
+              </TabsContent>
+              
+              <TabsContent value="security" className="flex-1 m-0">
+                <SecurityCompliance files={files} />
+              </TabsContent>
+              
+              <TabsContent value="reports" className="flex-1 m-0">
+                <RegulatoryReporting files={files} />
+              </TabsContent>
+              
+              <TabsContent value="performance" className="flex-1 m-0">
+                <PerformanceOptimization files={files} />
               </TabsContent>
               
               <TabsContent value="errors" className="flex-1 m-0">
