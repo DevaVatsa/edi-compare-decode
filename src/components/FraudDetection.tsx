@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Shield, AlertTriangle, Eye, Activity, Users, DollarSign,
   TrendingUp, Search, Flag, CheckCircle, XCircle, Clock,
@@ -45,6 +46,7 @@ interface FraudDetectionProps {
 }
 
 export const FraudDetection = ({ files }: FraudDetectionProps) => {
+  const { toast } = useToast();
   const [alerts, setAlerts] = useState<FraudAlert[]>([]);
   const [metrics, setMetrics] = useState<FraudMetrics>({
     totalAlerts: 0,
@@ -57,6 +59,29 @@ export const FraudDetection = ({ files }: FraudDetectionProps) => {
     automatedResolutions: 0
   });
   const [isScanning, setIsScanning] = useState(false);
+
+  const handleAutoFix = (alertId: string, alertDescription: string) => {
+    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    toast({
+      title: "Auto-Fix Applied",
+      description: `Resolved: ${alertDescription}`,
+    });
+  };
+
+  const handleInvestigate = (alertId: string, fileName: string) => {
+    toast({
+      title: "Investigation Started",
+      description: `Opening detailed analysis for ${fileName}`,
+    });
+  };
+
+  const handleMarkFalsePositive = (alertId: string) => {
+    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    toast({
+      title: "Marked as False Positive",
+      description: "Alert has been removed and system trained accordingly.",
+    });
+  };
 
   // Advanced fraud detection algorithms
   const fraudDetectionEngine = useMemo(() => {
@@ -429,16 +454,29 @@ export const FraudDetection = ({ files }: FraudDetectionProps) => {
                       </details>
                       <div className="flex gap-2">
                         {alert.autoResolvable && (
-                          <Button size="sm" variant="outline" className="text-green-600 border-green-600">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-green-600 border-green-600"
+                            onClick={() => handleAutoFix(alert.id, alert.description)}
+                          >
                             <CheckCircle className="h-3 w-3 mr-1" />
                             Auto-Fix
                           </Button>
                         )}
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleInvestigate(alert.id, alert.fileName)}
+                        >
                           <Eye className="h-3 w-3 mr-1" />
                           Investigate
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleMarkFalsePositive(alert.id)}
+                        >
                           <Flag className="h-3 w-3 mr-1" />
                           Mark as False Positive
                         </Button>

@@ -64,9 +64,31 @@ export const PayerPerformance = ({ files }: PayerPerformanceProps) => {
   };
 
   const handleExportReport = () => {
+    const reportData = {
+      generatedAt: new Date().toISOString(),
+      totalPayers: payerMetrics.length,
+      metrics: payerMetrics,
+      performanceData,
+      summary: {
+        avgResponseTime: payerMetrics.reduce((sum, p) => sum + p.avgResponseTime, 0) / Math.max(payerMetrics.length, 1),
+        avgErrorRate: payerMetrics.reduce((sum, p) => sum + p.errorRate, 0) / Math.max(payerMetrics.length, 1),
+        totalFiles: files.length
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `payer-performance-report-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Exporting Report",
-      description: "Generating payer performance report...",
+      title: "Report Downloaded",
+      description: "Payer performance report has been downloaded to your device.",
     });
   };
 

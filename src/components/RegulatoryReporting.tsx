@@ -41,10 +41,28 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
     });
   };
 
-  const handleDownloadReport = (reportName: string) => {
+  const handleDownloadReport = (reportName: string, reportData?: any) => {
+    const reportContent = {
+      reportName,
+      generatedAt: new Date().toISOString(),
+      data: reportData || { complianceScore: complianceMetrics.overallScore },
+      fileCount: files.length,
+      complianceMetrics
+    };
+
+    const blob = new Blob([JSON.stringify(reportContent, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${reportName.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Downloading Report",
-      description: `Downloading ${reportName}...`,
+      title: "Report Downloaded",
+      description: `${reportName} has been downloaded to your device.`,
     });
   };
 
@@ -371,7 +389,7 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleDownloadReport(report.name)}
+                          onClick={() => handleDownloadReport(report.name, report)}
                         >
                           <Download className="h-3 w-3 mr-1" />
                           Download

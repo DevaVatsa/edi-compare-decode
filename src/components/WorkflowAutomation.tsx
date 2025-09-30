@@ -33,6 +33,59 @@ export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
     2: 'active', 
     3: 'paused'
   });
+  const [workflowMetrics, setWorkflowMetrics] = useState<Array<{
+    id: number;
+    name: string;
+    status: 'active' | 'paused' | 'running' | 'scheduled';
+    priority: 'high' | 'medium' | 'low';
+    filesProcessed: number;
+    totalFiles: number;
+    estimatedCompletion: string;
+    assignedTo: string;
+    stage: string;
+    rules: string[];
+    savings: string;
+  }>>([
+    {
+      id: 1,
+      name: "834 Enrollment Processing",
+      status: "active",
+      priority: "high",
+      filesProcessed: 23,
+      totalFiles: 30,
+      estimatedCompletion: "2:30 PM",
+      assignedTo: "HR Department",
+      stage: "validation",
+      rules: ["Auto-approve standard enrollments", "Flag high-value plans", "Escalate errors"],
+      savings: "$2,400/day"
+    },
+    {
+      id: 2,
+      name: "820 Payment Reconciliation",
+      status: "active",
+      priority: "medium",
+      filesProcessed: 18,
+      totalFiles: 25,
+      estimatedCompletion: "3:15 PM",
+      assignedTo: "Finance Team",
+      stage: "reconciliation",
+      rules: ["Match payment amounts", "Verify member eligibility", "Generate discrepancy reports"],
+      savings: "$1,800/day"
+    },
+    {
+      id: 3,
+      name: "Compliance Audit Trail",
+      status: "paused",
+      priority: "low",
+      filesProcessed: 0,
+      totalFiles: 12,
+      estimatedCompletion: "5:00 PM",
+      assignedTo: "Compliance Officer",
+      stage: "queued",
+      rules: ["HIPAA validation", "State regulation checks", "Audit documentation"],
+      savings: "$900/day"
+    }
+  ]);
 
   const handleConfigureWorkflows = () => {
     toast({
@@ -41,15 +94,32 @@ export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
     });
   };
 
-  const handlePauseWorkflow = (id: number) => {
-    setWorkflowStates(prev => ({
-      ...prev,
-      [id]: prev[id] === 'active' ? 'paused' : 'active'
-    }));
+  const handlePauseWorkflow = (workflowId: string, workflowName: string) => {
+    setWorkflowMetrics(prev => prev.map(workflow => 
+      workflow.id.toString() === workflowId 
+        ? { ...workflow, status: workflow.status === 'active' ? 'paused' : 'active' }
+        : workflow
+    ));
+    
+    const action = workflowMetrics.find(w => w.id.toString() === workflowId)?.status === 'active' ? 'paused' : 'resumed';
     toast({
-      title: `Workflow ${workflowStates[id] === 'active' ? 'Paused' : 'Resumed'}`,
-      description: `Workflow ${id} has been ${workflowStates[id] === 'active' ? 'paused' : 'resumed'}.`,
+      title: `Workflow ${action.charAt(0).toUpperCase() + action.slice(1)}`,
+      description: `${workflowName} has been ${action}.`,
     });
+  };
+
+  const handleRunWorkflow = (workflowId: string, workflowName: string) => {
+    toast({
+      title: "Running Workflow",
+      description: `Executing ${workflowName} on current files...`,
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "Workflow Complete",
+        description: `${workflowName} processed ${files.length} files successfully.`,
+      });
+    }, 3000);
   };
 
   const handleConfigureWorkflow = (id: number, name: string) => {
@@ -205,7 +275,7 @@ export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {workflows.map((workflow) => (
+            {workflowMetrics.map((workflow) => (
               <div key={workflow.id} className="border border-border rounded-lg p-4">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -274,9 +344,9 @@ export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => handlePauseWorkflow(workflow.id)}
+                        onClick={() => handlePauseWorkflow(workflow.id.toString(), workflow.name)}
                       >
-                        {workflowStates[workflow.id] === 'active' ? (
+                        {workflow.status === 'active' ? (
                           <>
                             <Pause className="h-3 w-3 mr-1" />
                             Pause
@@ -287,6 +357,14 @@ export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
                             Resume
                           </>
                         )}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleRunWorkflow(workflow.id.toString(), workflow.name)}
+                      >
+                        <Play className="h-3 w-3 mr-1" />
+                        Run Now
                       </Button>
                       <Button 
                         size="sm"

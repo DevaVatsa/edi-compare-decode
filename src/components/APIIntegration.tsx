@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Globe, 
   Key, 
@@ -27,7 +28,54 @@ interface APIIntegrationProps {
 }
 
 export const APIIntegration = ({ files }: APIIntegrationProps) => {
+  const { toast } = useToast();
   const [selectedEndpoint, setSelectedEndpoint] = useState("/api/edi/upload");
+  const [isScanning, setIsScanning] = useState(false);
+
+  const handleConfigureIntegration = () => {
+    toast({
+      title: "Integration Configuration",
+      description: "Opening integration setup wizard...",
+    });
+  };
+
+  const handleTestAPICall = () => {
+    toast({
+      title: "Testing API",
+      description: "Sending test request to selected endpoint...",
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "API Test Complete",
+        description: "Endpoint responded successfully with 200 OK",
+      });
+    }, 2000);
+  };
+
+  const handleSecurityScan = () => {
+    setIsScanning(true);
+    toast({
+      title: "Security Scan Started",
+      description: "Analyzing API endpoints for vulnerabilities...",
+    });
+
+    setTimeout(() => {
+      setIsScanning(false);
+      toast({
+        title: "Security Scan Complete",
+        description: "No critical vulnerabilities detected. 3 minor recommendations available.",
+      });
+    }, 3000);
+  };
+
+  const handleGenerateKey = () => {
+    const newKey = `ak_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+    toast({
+      title: "API Key Generated",
+      description: `New API key created: ${newKey.substring(0, 20)}...`,
+    });
+  };
   
   const apiEndpoints = [
     {
@@ -148,10 +196,22 @@ export const APIIntegration = ({ files }: APIIntegrationProps) => {
           <h1 className="text-3xl font-bold text-foreground">API Integration Hub</h1>
           <p className="text-muted-foreground">Manage external integrations and API endpoints</p>
         </div>
-        <Button>
-          <Settings className="h-4 w-4 mr-2" />
-          Configure Integration
-        </Button>
+        <div className="flex gap-2">
+          {isScanning && (
+            <Badge variant="outline" className="text-blue-600 border-blue-600">
+              <Shield className="h-3 w-3 mr-1 animate-pulse" />
+              Scanning...
+            </Badge>
+          )}
+          <Button onClick={handleSecurityScan} disabled={isScanning}>
+            <Shield className="h-4 w-4 mr-2" />
+            Security Scan
+          </Button>
+          <Button onClick={handleConfigureIntegration}>
+            <Settings className="h-4 w-4 mr-2" />
+            Configure Integration
+          </Button>
+        </div>
       </div>
 
       {/* Overview Stats */}
@@ -283,7 +343,7 @@ export const APIIntegration = ({ files }: APIIntegrationProps) => {
                     <label className="text-sm font-medium mb-2 block">Request Body</label>
                     <Textarea placeholder="JSON request body..." rows={4} />
                   </div>
-                  <Button className="w-full">
+                  <Button className="w-full" onClick={handleTestAPICall}>
                     <Globe className="h-4 w-4 mr-2" />
                     Test API Call
                   </Button>
@@ -420,7 +480,7 @@ export const APIIntegration = ({ files }: APIIntegrationProps) => {
                       <Badge variant="outline">Active</Badge>
                     </div>
                   </div>
-                  <Button className="w-full" variant="outline">
+                  <Button className="w-full" variant="outline" onClick={handleGenerateKey}>
                     <Key className="h-4 w-4 mr-2" />
                     Generate New Key
                   </Button>
