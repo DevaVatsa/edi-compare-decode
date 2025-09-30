@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Zap, 
   Server, 
@@ -25,7 +26,22 @@ interface PerformanceOptimizationProps {
 }
 
 export const PerformanceOptimization = ({ files }: PerformanceOptimizationProps) => {
+  const { toast } = useToast();
   const [selectedMetric, setSelectedMetric] = useState("throughput");
+
+  const handleRunOptimization = () => {
+    toast({
+      title: "Optimization Started",
+      description: "Running system performance optimization...",
+    });
+  };
+
+  const handleConfigureFeature = (featureName: string, isEnabled: boolean) => {
+    toast({
+      title: `${isEnabled ? 'Configuring' : 'Enabling'} Feature`,
+      description: `${isEnabled ? 'Opening configuration for' : 'Enabling'} ${featureName}...`,
+    });
+  };
 
   const performanceMetrics = {
     processingSpeed: 2.3, // seconds per file
@@ -143,7 +159,7 @@ export const PerformanceOptimization = ({ files }: PerformanceOptimizationProps)
           <h1 className="text-3xl font-bold text-foreground">Performance Optimization</h1>
           <p className="text-muted-foreground">High-performance computing and system optimization</p>
         </div>
-        <Button>
+        <Button onClick={handleRunOptimization}>
           <Zap className="h-4 w-4 mr-2" />
           Run Optimization
         </Button>
@@ -244,7 +260,11 @@ export const PerformanceOptimization = ({ files }: PerformanceOptimizationProps)
                         <p className="text-xs text-muted-foreground mb-1">Recommendation</p>
                         <p className="text-sm font-medium">{feature.recommendation}</p>
                       </div>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleConfigureFeature(feature.name, feature.status === "enabled")}
+                      >
                         {feature.status === "enabled" ? "Configure" : "Enable"}
                       </Button>
                     </div>

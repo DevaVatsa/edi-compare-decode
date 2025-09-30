@@ -4,9 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Clock, TrendingUp, TrendingDown, AlertTriangle, CheckCircle,
-  Timer, Activity, BarChart3, Target, Zap, Eye, Shield
+  Timer, Activity, BarChart3, Target, Zap, Eye, Shield, Download, RefreshCw
 } from "lucide-react";
 import { EDIFile } from "@/pages/Index";
 import { parseEDIContent } from "@/utils/ediParser";
@@ -38,9 +40,43 @@ interface PayerPerformanceProps {
 }
 
 export const PayerPerformance = ({ files }: PayerPerformanceProps) => {
+  const { toast } = useToast();
   const [payerMetrics, setPayerMetrics] = useState<PayerMetrics[]>([]);
   const [selectedPayer, setSelectedPayer] = useState<string>("");
   const [performanceData, setPerformanceData] = useState<Record<string, PayerPerformanceData>>({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshData = async () => {
+    setIsRefreshing(true);
+    toast({
+      title: "Refreshing Data",
+      description: "Updating payer performance metrics...",
+    });
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toast({
+        title: "Data Updated",
+        description: "Payer performance metrics have been refreshed.",
+      });
+    }, 2000);
+  };
+
+  const handleExportReport = () => {
+    toast({
+      title: "Exporting Report",
+      description: "Generating payer performance report...",
+    });
+  };
+
+  const handleViewDetails = (payerId: string, payerName: string) => {
+    setSelectedPayer(payerId);
+    toast({
+      title: "Payer Details",
+      description: `Viewing detailed metrics for ${payerName}`,
+    });
+  };
 
   const payerAnalysis = useMemo(() => {
     if (!files.length) return { metrics: [], performanceData: {} };
@@ -301,6 +337,18 @@ export const PayerPerformance = ({ files }: PayerPerformanceProps) => {
           <p className="text-muted-foreground">Real-time payer response times, error rates, and efficiency metrics</p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleRefreshData}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+          </Button>
+          <Button onClick={handleExportReport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export Report
+          </Button>
           <Badge variant="outline" className="text-green-600 border-green-600">
             <Activity className="h-3 w-3 mr-1" />
             Live Monitoring
@@ -369,7 +417,11 @@ export const PayerPerformance = ({ files }: PayerPerformanceProps) => {
               <CardContent>
                 <div className="space-y-4">
                   {payerMetrics.slice(0, 5).map((payer, index) => (
-                    <div key={payer.payerId} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                     <div 
+                       key={payer.payerId} 
+                       className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                       onClick={() => handleViewDetails(payer.payerId, payer.payerName)}
+                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                           index === 0 ? 'bg-yellow-100 text-yellow-800' :

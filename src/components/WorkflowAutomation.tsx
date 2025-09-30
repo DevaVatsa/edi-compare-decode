@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import { 
   FileText, 
   Clock, 
@@ -24,8 +25,39 @@ interface WorkflowAutomationProps {
 }
 
 export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
+  const { toast } = useToast();
   const [activeWorkflows, setActiveWorkflows] = useState(3);
-  const [completedToday, setCompletedToday] = useState(47);
+  const [completedToday, setCompletedToday] = useState(files.length);
+  const [workflowStates, setWorkflowStates] = useState<Record<number, 'active' | 'paused' | 'stopped'>>({
+    1: 'active',
+    2: 'active', 
+    3: 'paused'
+  });
+
+  const handleConfigureWorkflows = () => {
+    toast({
+      title: "Workflow Configuration",
+      description: "Opening workflow configuration panel...",
+    });
+  };
+
+  const handlePauseWorkflow = (id: number) => {
+    setWorkflowStates(prev => ({
+      ...prev,
+      [id]: prev[id] === 'active' ? 'paused' : 'active'
+    }));
+    toast({
+      title: `Workflow ${workflowStates[id] === 'active' ? 'Paused' : 'Resumed'}`,
+      description: `Workflow ${id} has been ${workflowStates[id] === 'active' ? 'paused' : 'resumed'}.`,
+    });
+  };
+
+  const handleConfigureWorkflow = (id: number, name: string) => {
+    toast({
+      title: "Configure Workflow",
+      description: `Opening configuration for ${name}...`,
+    });
+  };
   
   const workflows = [
     {
@@ -103,7 +135,7 @@ export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
           <h1 className="text-3xl font-bold text-foreground">Workflow Automation</h1>
           <p className="text-muted-foreground">Intelligent routing and approval workflows</p>
         </div>
-        <Button>
+        <Button onClick={handleConfigureWorkflows}>
           <Settings className="h-4 w-4 mr-2" />
           Configure Workflows
         </Button>
@@ -239,11 +271,27 @@ export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
                       <p className="text-lg font-bold text-green-600">{workflow.savings}</p>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Pause className="h-3 w-3 mr-1" />
-                        Pause
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handlePauseWorkflow(workflow.id)}
+                      >
+                        {workflowStates[workflow.id] === 'active' ? (
+                          <>
+                            <Pause className="h-3 w-3 mr-1" />
+                            Pause
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-3 w-3 mr-1" />
+                            Resume
+                          </>
+                        )}
                       </Button>
-                      <Button size="sm">
+                      <Button 
+                        size="sm"
+                        onClick={() => handleConfigureWorkflow(workflow.id, workflow.name)}
+                      >
                         <Settings className="h-3 w-3 mr-1" />
                         Configure
                       </Button>

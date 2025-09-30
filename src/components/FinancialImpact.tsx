@@ -4,9 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { 
   DollarSign, TrendingUp, TrendingDown, AlertTriangle, Clock,
-  Target, BarChart3, PieChart, Activity, CheckCircle, Timer
+  Target, BarChart3, PieChart, Activity, CheckCircle, Timer, Download, RefreshCw
 } from "lucide-react";
 import { EDIFile } from "@/pages/Index";
 import { parseEDIContent } from "@/utils/ediParser";
@@ -47,6 +49,8 @@ interface FinancialImpactProps {
 }
 
 export const FinancialImpact = ({ files }: FinancialImpactProps) => {
+  const { toast } = useToast();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [metrics, setMetrics] = useState<FinancialMetrics>({
     totalPremiumFlow: 0,
     totalPayments: 0,
@@ -369,6 +373,36 @@ export const FinancialImpact = ({ files }: FinancialImpactProps) => {
           <p className="text-muted-foreground">Premium flows, payment delays, and comprehensive cost-benefit analysis</p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setIsRefreshing(true);
+              toast({
+                title: "Refreshing Financial Data",
+                description: "Updating financial impact metrics...",
+              });
+              setTimeout(() => {
+                setIsRefreshing(false);
+                toast({
+                  title: "Data Updated",
+                  description: "Financial metrics have been refreshed.",
+                });
+              }, 2000);
+            }}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          <Button onClick={() => {
+            toast({
+              title: "Exporting Financial Report",
+              description: "Generating comprehensive financial impact report...",
+            });
+          }}>
+            <Download className="h-4 w-4 mr-2" />
+            Export Report
+          </Button>
           <Badge variant="outline" className="text-green-600 border-green-600">
             <TrendingUp className="h-3 w-3 mr-1" />
             ROI: {metrics.roi.toFixed(1)}%

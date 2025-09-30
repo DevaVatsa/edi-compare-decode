@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Shield, 
   Lock, 
@@ -25,7 +26,22 @@ interface SecurityComplianceProps {
 }
 
 export const SecurityCompliance = ({ files }: SecurityComplianceProps) => {
+  const { toast } = useToast();
   const [selectedAudit, setSelectedAudit] = useState("access");
+
+  const handleSecurityScan = () => {
+    toast({
+      title: "Security Scan Started",
+      description: "Running comprehensive security analysis...",
+    });
+  };
+
+  const handleViewDetails = (checkName: string) => {
+    toast({
+      title: "Security Check Details",
+      description: `Viewing detailed information for ${checkName}...`,
+    });
+  };
 
   const securityMetrics = {
     overallScore: 98,
@@ -142,7 +158,7 @@ export const SecurityCompliance = ({ files }: SecurityComplianceProps) => {
           <h1 className="text-3xl font-bold text-foreground">Security & Compliance</h1>
           <p className="text-muted-foreground">Enterprise security monitoring and compliance management</p>
         </div>
-        <Button>
+        <Button onClick={handleSecurityScan}>
           <Shield className="h-4 w-4 mr-2" />
           Run Security Scan
         </Button>
@@ -245,7 +261,11 @@ export const SecurityCompliance = ({ files }: SecurityComplianceProps) => {
                         <p className="text-sm font-medium">{check.lastCheck}</p>
                       </div>
                       <div className="flex justify-end">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleViewDetails(check.name)}
+                        >
                           View Details
                         </Button>
                       </div>

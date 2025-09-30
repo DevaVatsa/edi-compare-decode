@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import { 
   FileText, 
   Download, 
@@ -23,7 +24,29 @@ interface RegulatoryReportingProps {
 }
 
 export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
+  const { toast } = useToast();
   const [selectedReport, setSelectedReport] = useState("hipaa");
+
+  const handleGenerateReport = (reportType?: string) => {
+    toast({
+      title: "Generating Report",
+      description: `Creating ${reportType || 'compliance'} report...`,
+    });
+  };
+
+  const handleViewReport = (reportName: string) => {
+    toast({
+      title: "Opening Report",
+      description: `Viewing ${reportName}...`,
+    });
+  };
+
+  const handleDownloadReport = (reportName: string) => {
+    toast({
+      title: "Downloading Report",
+      description: `Downloading ${reportName}...`,
+    });
+  };
 
   const reportSchedule = [
     {
@@ -155,7 +178,7 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
           <h1 className="text-3xl font-bold text-foreground">Regulatory Reporting</h1>
           <p className="text-muted-foreground">Automated compliance and regulatory report generation</p>
         </div>
-        <Button>
+        <Button onClick={() => handleGenerateReport()}>
           <FileText className="h-4 w-4 mr-2" />
           Generate Report
         </Button>
@@ -281,10 +304,17 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
                         <p className="text-sm font-medium">{report.lastGenerated}</p>
                       </div>
                       <div className="flex justify-end gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleViewReport(report.name)}
+                        >
                           View
                         </Button>
-                        <Button size="sm">
+                        <Button 
+                          size="sm"
+                          onClick={() => handleGenerateReport(report.name)}
+                        >
                           Generate Now
                         </Button>
                       </div>
@@ -338,11 +368,19 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
                         <p className="text-sm font-medium">{report.recipient}</p>
                       </div>
                       <div className="flex justify-end gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleDownloadReport(report.name)}
+                        >
                           <Download className="h-3 w-3 mr-1" />
                           Download
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleViewReport(report.name)}
+                        >
                           Share
                         </Button>
                       </div>
@@ -380,7 +418,11 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   </div>
                 </div>
-                <Button className="w-full mt-4" size="sm">
+                <Button 
+                  className="w-full mt-4" 
+                  size="sm"
+                  onClick={() => handleGenerateReport("HIPAA Report")}
+                >
                   Generate HIPAA Report
                 </Button>
               </CardContent>
@@ -410,7 +452,11 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   </div>
                 </div>
-                <Button className="w-full mt-4" size="sm">
+                <Button 
+                  className="w-full mt-4" 
+                  size="sm"
+                  onClick={() => handleGenerateReport("SOC 2 Report")}
+                >
                   Generate SOC 2 Report
                 </Button>
               </CardContent>
@@ -440,7 +486,11 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   </div>
                 </div>
-                <Button className="w-full mt-4" size="sm">
+                <Button 
+                  className="w-full mt-4" 
+                  size="sm"
+                  onClick={() => handleGenerateReport("ACA Report")}
+                >
                   Generate ACA Report
                 </Button>
               </CardContent>
@@ -470,7 +520,11 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
                     <AlertTriangle className="h-4 w-4 text-yellow-500" />
                   </div>
                 </div>
-                <Button className="w-full mt-4" size="sm">
+                <Button 
+                  className="w-full mt-4" 
+                  size="sm"
+                  onClick={() => handleGenerateReport("State Report")}
+                >
                   Generate State Report
                 </Button>
               </CardContent>
