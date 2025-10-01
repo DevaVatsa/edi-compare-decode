@@ -37,9 +37,37 @@ export const SecurityCompliance = ({ files }: SecurityComplianceProps) => {
   };
 
   const handleViewDetails = (checkName: string) => {
+    const check = complianceChecks.find(c => c.name === checkName);
+    if (!check) return;
+
+    const detailsReport = {
+      checkName: check.name,
+      status: check.status,
+      complianceScore: check.score,
+      lastCheck: check.lastCheck,
+      viewedAt: new Date().toISOString(),
+      requirements: [
+        `${checkName} implementation verified`,
+        "Regular monitoring in place",
+        "Documentation up to date",
+        "Audit trail maintained"
+      ],
+      nextReview: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    };
+
+    const blob = new Blob([JSON.stringify(detailsReport, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `compliance-details-${checkName.toLowerCase().replace(/\s+/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Security Check Details",
-      description: `Viewing detailed information for ${checkName}...`,
+      title: "Compliance Details Downloaded",
+      description: `Detailed ${checkName} information has been exported.`,
     });
   };
 

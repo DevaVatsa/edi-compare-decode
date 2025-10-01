@@ -88,9 +88,26 @@ export const WorkflowAutomation = ({ files }: WorkflowAutomationProps) => {
   ]);
 
   const handleConfigureWorkflows = () => {
+    const configData = {
+      workflows: workflowMetrics,
+      activeCount: activeWorkflows,
+      completedToday: completedToday,
+      configuredAt: new Date().toISOString()
+    };
+
+    const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `workflow-config-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Workflow Configuration",
-      description: "Opening workflow configuration panel...",
+      title: "Configuration Exported",
+      description: "Workflow configuration has been downloaded for review.",
     });
   };
 

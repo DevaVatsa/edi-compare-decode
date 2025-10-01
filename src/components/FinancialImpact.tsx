@@ -395,9 +395,29 @@ export const FinancialImpact = ({ files }: FinancialImpactProps) => {
             {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
           <Button onClick={() => {
+            const reportData = {
+              reportName: "Financial Impact Analysis",
+              generatedAt: new Date().toISOString(),
+              filesAnalyzed: files.length,
+              metrics: metrics,
+              paymentFlows: paymentFlows,
+              costBreakdown: costBreakdown,
+              summary: `Processing $${metrics.totalPremiumFlow.toLocaleString()} in premium volume with ${metrics.roi.toFixed(1)}% ROI`
+            };
+            
+            const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `financial-impact-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
             toast({
-              title: "Exporting Financial Report",
-              description: "Generating comprehensive financial impact report...",
+              title: "Report Exported",
+              description: "Financial impact report has been downloaded.",
             });
           }}>
             <Download className="h-4 w-4 mr-2" />

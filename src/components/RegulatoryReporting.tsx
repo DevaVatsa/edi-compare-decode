@@ -35,9 +35,32 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
   };
 
   const handleViewReport = (reportName: string) => {
+    const report = reportSchedule.find(r => r.name === reportName) || 
+                   recentReports.find(r => r.name === reportName);
+    
+    if (!report) return;
+
+    const viewData = {
+      reportName,
+      viewedAt: new Date().toISOString(),
+      reportDetails: report,
+      filesAnalyzed: files.length,
+      complianceMetrics
+    };
+
+    const blob = new Blob([JSON.stringify(viewData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `report-view-${reportName.toLowerCase().replace(/\s+/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Opening Report",
-      description: `Viewing ${reportName}...`,
+      title: "Report Opened",
+      description: `${reportName} has been exported for viewing.`,
     });
   };
 

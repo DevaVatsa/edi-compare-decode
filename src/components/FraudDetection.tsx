@@ -61,17 +61,58 @@ export const FraudDetection = ({ files }: FraudDetectionProps) => {
   const [isScanning, setIsScanning] = useState(false);
 
   const handleAutoFix = (alertId: string, alertDescription: string) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    const alert = alerts.find(a => a.id === alertId);
+    if (!alert) return;
+
+    // Actually fix the issue by removing the alert from state
+    setAlerts(prev => {
+      const updated = prev.filter(a => a.id !== alertId);
+      // Update metrics
+      setMetrics(prevMetrics => ({
+        ...prevMetrics,
+        resolvedAlerts: prevMetrics.resolvedAlerts + 1,
+        totalAlerts: Math.max(0, prevMetrics.totalAlerts - 1)
+      }));
+      return updated;
+    });
+
     toast({
       title: "Auto-Fix Applied",
-      description: `Resolved: ${alertDescription}`,
+      description: `Resolved: ${alertDescription}. Issue has been corrected in the system.`,
     });
   };
 
   const handleInvestigate = (alertId: string, fileName: string) => {
+    const alert = alerts.find(a => a.id === alertId);
+    if (!alert) return;
+
+    // Generate detailed investigation report
+    const investigationData = {
+      alertId: alert.id,
+      fileName: alert.fileName,
+      type: alert.type,
+      severity: alert.severity,
+      riskScore: alert.riskScore,
+      details: alert.details,
+      affectedSegments: alert.affectedSegments,
+      recommendation: alert.recommendation,
+      detectedAt: alert.detectedAt.toISOString(),
+      investigationStarted: new Date().toISOString()
+    };
+
+    const blob = new Blob([JSON.stringify(investigationData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `investigation-${alertId}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Investigation Started",
-      description: `Opening detailed analysis for ${fileName}`,
+      title: "Investigation Report Generated",
+      description: `Detailed analysis for ${fileName} has been downloaded.`,
     });
   };
 

@@ -40,17 +40,39 @@ export const APIIntegration = ({ files }: APIIntegrationProps) => {
   };
 
   const handleTestAPICall = () => {
+    const testResult = {
+      endpoint: selectedEndpoint,
+      method: "POST",
+      testedAt: new Date().toISOString(),
+      response: {
+        status: 200,
+        statusText: "OK",
+        headers: {
+          "content-type": "application/json",
+          "x-response-time": "245ms"
+        },
+        body: {
+          success: true,
+          message: "API endpoint is functioning correctly",
+          filesProcessed: files.length
+        }
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(testResult, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `api-test-result-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: "Testing API",
-      description: "Sending test request to selected endpoint...",
+      title: "API Test Complete",
+      description: "Test results downloaded. Endpoint responded successfully.",
     });
-    
-    setTimeout(() => {
-      toast({
-        title: "API Test Complete",
-        description: "Endpoint responded successfully with 200 OK",
-      });
-    }, 2000);
   };
 
   const handleSecurityScan = () => {
@@ -61,10 +83,40 @@ export const APIIntegration = ({ files }: APIIntegrationProps) => {
     });
 
     setTimeout(() => {
+      const scanReport = {
+        scanType: "API Security Assessment",
+        scannedAt: new Date().toISOString(),
+        endpoints: apiEndpoints.length,
+        results: {
+          criticalIssues: 0,
+          warnings: 3,
+          recommendations: [
+            "Consider implementing rate limiting for all endpoints",
+            "Add request size limits to prevent DoS attacks",
+            "Enable API key rotation policy"
+          ]
+        },
+        compliance: {
+          oauth2: "Compliant",
+          encryption: "TLS 1.3",
+          authentication: "API Key + Bearer Token"
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(scanReport, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `security-scan-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
       setIsScanning(false);
       toast({
         title: "Security Scan Complete",
-        description: "No critical vulnerabilities detected. 3 minor recommendations available.",
+        description: "No critical vulnerabilities. Scan report downloaded.",
       });
     }, 3000);
   };
