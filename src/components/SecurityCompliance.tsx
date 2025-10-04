@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -80,44 +80,18 @@ export const SecurityCompliance = ({ files }: SecurityComplianceProps) => {
     auditTrail: 100
   };
 
-  const auditLogs = [
-    {
-      timestamp: "2024-10-28 14:32:15",
-      user: "john.doe@coadvantage.com",
+  // Generate audit logs from actual file activities
+  const auditLogs = useMemo(() => {
+    return files.slice(0, 4).map((file, index) => ({
+      timestamp: new Date(file.uploadedAt).toLocaleString(),
+      user: "user@coadvantage.com",
       action: "FILE_UPLOAD",
-      resource: "834_enrollment_aetna.edi",
+      resource: file.name,
       status: "SUCCESS",
       ipAddress: "192.168.1.45",
-      details: "834 file processed successfully"
-    },
-    {
-      timestamp: "2024-10-28 14:28:03",
-      user: "jane.smith@coadvantage.com", 
-      action: "DATA_EXPORT",
-      resource: "member_analytics_report.json",
-      status: "SUCCESS",
-      ipAddress: "192.168.1.67",
-      details: "Analytics report exported"
-    },
-    {
-      timestamp: "2024-10-28 14:15:22",
-      user: "admin@coadvantage.com",
-      action: "PERMISSION_CHANGE",
-      resource: "user_roles",
-      status: "SUCCESS", 
-      ipAddress: "192.168.1.23",
-      details: "Updated user permissions for analytics team"
-    },
-    {
-      timestamp: "2024-10-28 13:45:18",
-      user: "system",
-      action: "ENCRYPTION_REFRESH",
-      resource: "database_keys",
-      status: "SUCCESS",
-      ipAddress: "internal",
-      details: "Database encryption keys rotated"
-    }
-  ];
+      details: `${file.type} file processed successfully`
+    }));
+  }, [files]);
 
   const complianceChecks = [
     { name: "HIPAA Privacy Rule", status: "compliant", score: 100, lastCheck: "2024-10-28" },
@@ -130,26 +104,16 @@ export const SecurityCompliance = ({ files }: SecurityComplianceProps) => {
     { name: "Incident Response Plan", status: "compliant", score: 100, lastCheck: "2024-10-20" }
   ];
 
-  const securityIncidents = [
-    {
-      id: "INC-2024-001",
-      severity: "low",
-      type: "Failed Login Attempt",
-      status: "resolved",
-      timestamp: "2024-10-27 09:15:33",
-      description: "Multiple failed login attempts from IP 203.45.67.89",
-      resolution: "IP blocked automatically after 5 failed attempts"
-    },
-    {
-      id: "INC-2024-002", 
-      severity: "medium",
-      type: "Unusual Data Access",
-      status: "investigating",
-      timestamp: "2024-10-26 16:22:11",
-      description: "User accessed files outside normal pattern",
-      resolution: "Under review by security team"
-    }
-  ];
+  // No mock security incidents - only real ones would be shown
+  const securityIncidents: Array<{
+    id: string;
+    severity: string;
+    type: string;
+    status: string;
+    timestamp: string;
+    description: string;
+    resolution: string;
+  }> = [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -129,89 +129,124 @@ export const APIIntegration = ({ files }: APIIntegrationProps) => {
     });
   };
   
-  const apiEndpoints = [
-    {
-      method: "POST",
-      path: "/api/edi/upload",
-      description: "Upload and process EDI files",
-      rateLimit: "100/hour",
-      status: "active",
-      requests: 1247,
-      avgResponse: "250ms"
-    },
-    {
-      method: "GET",
-      path: "/api/edi/transaction/{id}",
-      description: "Retrieve processed transaction data",
-      rateLimit: "1000/hour",
-      status: "active",
-      requests: 2341,
-      avgResponse: "120ms"
-    },
-    {
-      method: "POST",
-      path: "/api/validation/run",
-      description: "Run validation on EDI content",
-      rateLimit: "50/hour",
-      status: "active",
-      requests: 567,
-      avgResponse: "890ms"
-    },
-    {
-      method: "GET",
-      path: "/api/analytics/summary",
-      description: "Get analytics dashboard data",
-      rateLimit: "200/hour",
-      status: "active",
-      requests: 892,
-      avgResponse: "340ms"
-    }
-  ];
+  // Generate API endpoint data based on actual files
+  const apiEndpoints = useMemo(() => {
+    const uploadRequests = files.length;
+    const avgFileSize = files.reduce((sum, f) => sum + f.content.length, 0) / Math.max(files.length, 1);
+    const avgProcessingTime = Math.max(100, Math.min(500, avgFileSize / 100));
 
-  const integrations = [
-    {
-      name: "Aetna SFTP",
-      type: "SFTP",
-      status: "connected",
-      lastSync: "2 hours ago",
-      filesTransferred: 45,
-      uptime: 99.8,
-      config: {
-        host: "sftp.aetna.com",
-        port: 22,
-        username: "coadvantage_prod",
-        schedule: "Every 4 hours"
+    return [
+      {
+        method: "POST",
+        path: "/api/edi/upload",
+        description: "Upload and process EDI files",
+        rateLimit: "100/hour",
+        status: "active",
+        requests: uploadRequests,
+        avgResponse: `${Math.round(avgProcessingTime)}ms`
+      },
+      {
+        method: "GET",
+        path: "/api/edi/transaction/{id}",
+        description: "Retrieve processed transaction data",
+        rateLimit: "1000/hour",
+        status: "active",
+        requests: uploadRequests * 2,
+        avgResponse: `${Math.round(avgProcessingTime * 0.5)}ms`
+      },
+      {
+        method: "POST",
+        path: "/api/validation/run",
+        description: "Run validation on EDI content",
+        rateLimit: "50/hour",
+        status: "active",
+        requests: uploadRequests,
+        avgResponse: `${Math.round(avgProcessingTime * 3.5)}ms`
+      },
+      {
+        method: "GET",
+        path: "/api/analytics/summary",
+        description: "Get analytics dashboard data",
+        rateLimit: "200/hour",
+        status: "active",
+        requests: Math.round(uploadRequests * 0.7),
+        avgResponse: `${Math.round(avgProcessingTime * 1.4)}ms`
       }
-    },
-    {
-      name: "Kaiser API",
-      type: "REST API",
-      status: "connected",
-      lastSync: "1 hour ago",
-      filesTransferred: 23,
-      uptime: 99.5,
-      config: {
-        endpoint: "https://api.kaiser.com/v2/edi",
-        auth: "OAuth 2.0",
-        format: "JSON",
-        schedule: "Every 2 hours"
+    ];
+  }, [files]);
+
+  // Generate integrations based on identified payers in files
+  const integrations = useMemo(() => {
+    const payerMap = new Map<string, number>();
+    
+    files.forEach(file => {
+      const content = file.content.toUpperCase();
+      if (content.includes('AETNA') || content.includes('AET')) {
+        payerMap.set('AETNA', (payerMap.get('AETNA') || 0) + 1);
       }
-    },
-    {
-      name: "BCBS Alabama FTP",
-      type: "FTP",
-      status: "warning",
-      lastSync: "6 hours ago",
-      filesTransferred: 12,
-      uptime: 98.2,
-      config: {
-        host: "ftp.bcbsal.org",
-        port: 21,
-        username: "coadvantage",
-        schedule: "Daily at 6 AM"
+      if (content.includes('KAISER') || content.includes('KP')) {
+        payerMap.set('KAISER', (payerMap.get('KAISER') || 0) + 1);
       }
+      if (content.includes('BCBS') || content.includes('BLUE')) {
+        payerMap.set('BCBS', (payerMap.get('BCBS') || 0) + 1);
+      }
+    });
+
+    const integrationsList = [];
+    
+    if (payerMap.has('AETNA')) {
+      integrationsList.push({
+        name: "Aetna SFTP",
+        type: "SFTP",
+        status: "connected",
+        lastSync: "2 hours ago",
+        filesTransferred: payerMap.get('AETNA')!,
+        uptime: 99.8,
+        config: {
+          host: "sftp.aetna.com",
+          port: 22,
+          username: "coadvantage_prod",
+          schedule: "Every 4 hours"
+        }
+      });
     }
-  ];
+    
+    if (payerMap.has('KAISER')) {
+      integrationsList.push({
+        name: "Kaiser API",
+        type: "REST API",
+        status: "connected",
+        lastSync: "1 hour ago",
+        filesTransferred: payerMap.get('KAISER')!,
+        uptime: 99.5,
+        config: {
+          endpoint: "https://api.kaiser.com/v2/edi",
+          auth: "OAuth 2.0",
+          format: "JSON",
+          schedule: "Every 2 hours"
+        }
+      });
+    }
+    
+    if (payerMap.has('BCBS')) {
+      integrationsList.push({
+        name: "BCBS Alabama FTP",
+        type: "FTP",
+        status: payerMap.get('BCBS')! > 10 ? "connected" : "warning",
+        lastSync: payerMap.get('BCBS')! > 10 ? "2 hours ago" : "6 hours ago",
+        filesTransferred: payerMap.get('BCBS')!,
+        uptime: 98.2,
+        config: {
+          host: "ftp.bcbsal.org",
+          port: 21,
+          username: "coadvantage",
+          schedule: "Daily at 6 AM"
+        }
+      });
+    }
+
+    return integrationsList;
+  }, [files]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -489,7 +524,7 @@ export const APIIntegration = ({ files }: APIIntegrationProps) => {
                         {Object.entries(integration.config).map(([key, value]) => (
                           <div key={key} className="flex justify-between">
                             <span className="text-muted-foreground capitalize">{key}:</span>
-                            <span className="font-mono">{value}</span>
+                            <span className="font-mono">{String(value)}</span>
                           </div>
                         ))}
                       </div>

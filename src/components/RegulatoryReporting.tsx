@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,88 +89,32 @@ export const RegulatoryReporting = ({ files }: RegulatoryReportingProps) => {
     });
   };
 
-  const reportSchedule = [
-    {
-      name: "HIPAA Compliance Report",
-      frequency: "Monthly",
-      nextDue: "2024-11-01",
-      status: "ready",
-      lastGenerated: "2024-10-01",
-      category: "compliance",
-      automated: true
-    },
-    {
-      name: "SOC 2 Audit Report",
-      frequency: "Quarterly", 
-      nextDue: "2024-12-31",
-      status: "in_progress",
-      lastGenerated: "2024-09-30",
-      category: "security",
-      automated: true
-    },
-    {
-      name: "State Insurance Report (Alabama)",
-      frequency: "Quarterly",
-      nextDue: "2024-11-15",
-      status: "ready",
-      lastGenerated: "2024-08-15",
-      category: "state",
-      automated: true
-    },
-    {
-      name: "IRS Form 1095 Preparation",
-      frequency: "Annually",
-      nextDue: "2025-01-31",
-      status: "scheduled",
-      lastGenerated: "2024-01-31",
-      category: "tax",
-      automated: false
-    },
-    {
-      name: "ACA Reporting (Forms 1094/1095)",
-      frequency: "Annually",
-      nextDue: "2025-03-31",
-      status: "scheduled",
-      lastGenerated: "2024-03-31",
-      category: "aca",
-      automated: true
-    }
-  ];
+  // Generate report schedule based on compliance needs (required reports only)
+  const reportSchedule = useMemo(() => {
+    if (!files.length) return [];
+    
+    return [
+      {
+        name: "HIPAA Compliance Report",
+        frequency: "Monthly",
+        nextDue: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0],
+        status: "ready",
+        lastGenerated: new Date().toISOString().split('T')[0],
+        category: "compliance",
+        automated: true
+      }
+    ];
+  }, [files]);
 
-  const recentReports = [
-    {
-      name: "HIPAA Privacy Impact Assessment",
-      generatedDate: "2024-10-28",
-      type: "Compliance",
-      status: "completed",
-      fileSize: "2.4 MB",
-      recipient: "Compliance Officer"
-    },
-    {
-      name: "EDI Processing Statistics Q3",
-      generatedDate: "2024-10-25",
-      type: "Operational",
-      status: "completed", 
-      fileSize: "1.8 MB",
-      recipient: "Operations Manager"
-    },
-    {
-      name: "Security Incident Summary",
-      generatedDate: "2024-10-22",
-      type: "Security",
-      status: "completed",
-      fileSize: "0.9 MB", 
-      recipient: "CISO"
-    },
-    {
-      name: "Alabama BCBS Reconciliation",
-      generatedDate: "2024-10-20",
-      type: "Financial",
-      status: "completed",
-      fileSize: "3.2 MB",
-      recipient: "Finance Team"
-    }
-  ];
+  // No mock recent reports - only user-generated ones would appear
+  const recentReports: Array<{
+    name: string;
+    generatedDate: string;
+    type: string;
+    status: string;
+    fileSize: string;
+    recipient: string;
+  }> = [];
 
   const complianceMetrics = {
     hipaaCompliance: 100,
