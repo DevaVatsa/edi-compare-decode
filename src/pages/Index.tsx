@@ -15,6 +15,7 @@ import { APIIntegration } from "@/components/APIIntegration";
 import { SecurityCompliance } from "@/components/SecurityCompliance";
 import { RegulatoryReporting } from "@/components/RegulatoryReporting";
 import { PerformanceOptimization } from "@/components/PerformanceOptimization";
+import { AnimatedEDIDiff } from "@/components/AnimatedEDIDiff";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -70,8 +71,9 @@ const Index = () => {
           ) : (
             <Tabs defaultValue="compare" className="flex-1 flex flex-col">
               <div className="border-b border-border px-6 py-2">
-                <TabsList className="grid w-full grid-cols-12 text-xs gap-1">
+                <TabsList className="grid w-full grid-cols-13 text-xs gap-1">
                   <TabsTrigger value="compare" className="text-xs">Compare</TabsTrigger>
+                  <TabsTrigger value="animated-diff" className="text-xs">Animated</TabsTrigger>
                   <TabsTrigger value="convert" className="text-xs">Convert</TabsTrigger>
                   <TabsTrigger value="dashboard" className="text-xs">Dashboard</TabsTrigger>
                   <TabsTrigger value="analytics" className="text-xs">Analytics</TabsTrigger>
@@ -88,6 +90,10 @@ const Index = () => {
               
               <TabsContent value="compare" className="flex-1 m-0">
                 <ComparisonView files={files} />
+              </TabsContent>
+              
+              <TabsContent value="animated-diff" className="flex-1 m-0">
+                <AnimatedEDIDiff leftFile={selectedFiles.left} rightFile={selectedFiles.right} />
               </TabsContent>
               
               <TabsContent value="convert" className="flex-1 m-0">
